@@ -1,6 +1,6 @@
-export async function getPeople(){
+export async function getPeople(page = 1){
     try {
-        const response = await fetch('https://swapi.dev/api/people/')
+        const response = await fetch(`https://swapi.dev/api/people/?page=${page}`)
         if(!response.ok){
             throw new NetworkError()
         }

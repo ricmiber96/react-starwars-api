@@ -11,13 +11,14 @@ function App() {
   const [currentCharacter, setCurrentCharacter] = useState(1)
   const [characterDetails, setCharacterDetails] = useState([])
   const [error, setError] = useState({hasError: false})
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
-    getPeople()
-      .then((data) => setPeople(data.results))
+    getPeople(page)
+      .then((data) => setPeople(data))
       .catch(handleError)
 
-  },[])
+  },[page])
 
   useEffect(() => {
     getCharacter(currentCharacter).then((data) => setCharacterDetails(data)).catch(handleError)
@@ -38,7 +39,13 @@ function App() {
     if(event.key !== "Enter"){return}
     inputSearch.current.value = ""
     setCharacterDetails({})
-    searchCharacter(textSearch).then(data => {setPeople(data.results)}).catch(handleError)
+    searchCharacter(textSearch).then(data => {setPeople(data)}).catch(handleError)
+  }
+
+  const onChangePage = (nextPage) => {
+    if(!people.previous && page + nextPage <= 0) return
+    if(!people.next && page + nextPage >= 9) return
+    setPage (page + nextPage)
   }
 
   const showDetails = (url) => {
@@ -52,11 +59,16 @@ function App() {
       <ul>
         {error.hasError && <div>{error.message}</div>}
         {
-        people.map((character,i)=>(
+        people?.results?.map((character,i)=>(
           <li key={character.name} onClick={()=>showDetails(character.url)}>{character.name}</li>
           ))
         }
       </ul>
+      <div>
+        <button onClick={()=> onChangePage(-1)}>PREV</button>
+        {page}
+        <button onClick={()=> onChangePage(1)}>NEXT</button>
+      </div>
       {characterDetails && (
         <aside>
           <h1>{characterDetails.name}</h1>
